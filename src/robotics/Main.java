@@ -6,7 +6,7 @@ public class Main {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Movement.goLeft();
+		Movement.Assignement1();
 	}
 	
 	public static void printSomething(String str, int delay) {
