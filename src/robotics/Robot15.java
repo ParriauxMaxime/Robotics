@@ -1,8 +1,9 @@
 package robotics;
 
-import lejos.robotics.navigation.MovePilot;
+import lejos.robotics.navigation.*;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.BaseRegulatedMotor;
+import lejos.robotics.chassis.*;
 import lejos.utility.Delay;
 
 
@@ -10,6 +11,13 @@ public final class Robot15 extends Robot {
 
 	public Robot15(BaseRegulatedMotor left, BaseRegulatedMotor right, double widthTrack, double wheelWidth) {
 		super(left, right, widthTrack, wheelWidth);
+		Wheel R = WheeledChassis.modelWheel(this.right, wheelWidth * 1000).offset((widthTrack * 1000 / 2));
+		Wheel L = WheeledChassis.modelWheel(this.left, wheelWidth * 1000).offset(-(widthTrack * 1000 / 2));
+		this.chassis = new WheeledChassis(new Wheel[] {L, R}, WheeledChassis.TYPE_DIFFERENTIAL);
+		this.pilot = new MovePilot(chassis);
+		//this.pilot.setAngularSpeed(45);
+		this.pilot.setLinearSpeed(DEFAULT_SPEED/2);
+		this.navigator = new Navigator(this.pilot);
 	}
 	
 	public static void speedUnreachable() {
@@ -100,10 +108,6 @@ public final class Robot15 extends Robot {
 		this.left.stop();
 		this.left.endSynchronization();
 		return this.left.getTachoCount();
-	}
-	
-	public void assignementMovePilot() {
-		
 	}
 
 }

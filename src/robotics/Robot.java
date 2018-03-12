@@ -1,6 +1,7 @@
 package robotics;
-
 import lejos.hardware.motor.*;
+import lejos.robotics.navigation.*;
+import lejos.robotics.chassis.*;
 
 public abstract class Robot implements IRobot {
 	protected double widthTrack;
@@ -8,6 +9,9 @@ public abstract class Robot implements IRobot {
 	protected BaseRegulatedMotor right;
 	protected double wheelWidth;
 	protected int DEFAULT_SPEED = 360;
+	MovePilot pilot;
+	Chassis chassis;
+	Navigator navigator;
 	
 	Robot(BaseRegulatedMotor left, BaseRegulatedMotor right, double widthTrack, double wheelWidth) {
 		this.left = left;
@@ -50,6 +54,28 @@ public abstract class Robot implements IRobot {
 		this.turnRight(90, 0);
 		this.forward(0.32);
 		this.turnRight(90, 0);
+	}
+
+	public void assignementMovePilot() {
+		this.pilot.travel(400);
+		this.pilot.arc(-160, 180, false);
+		this.pilot.travel(400);
+		this.pilot.arc(0, -90, false);
+		this.pilot.travel(320);
+		this.pilot.arc(0, -90, false);
+	}
+	
+	public void assignementNavigator() {
+		this.navigator.clearPath();
+		this.navigator.addWaypoint(new Waypoint(400.0, 0.0));
+		this.navigator.addWaypoint(new Waypoint(560.0, -160.0));
+		this.navigator.addWaypoint(new Waypoint(400.0, -320.0));
+		this.navigator.addWaypoint(new Waypoint(0.0, -320.0));
+		this.navigator.addWaypoint(new Waypoint(0.0, 0.0));
+		this.navigator.followPath();
+		this.navigator.waitForStop();
+		while(this.navigator.isMoving()) {};
+		this.navigator.rotateTo(0);
 	}
 
 	@Override
