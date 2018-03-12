@@ -1,7 +1,8 @@
 package robotics;
 
 public interface IRobot {
-	public int forward(double distance);
-	public int turnLeft(int angle, double radiusTurn);
-	public int turnRight(int angle, double radiusTurn);
+	public void differentialDrive(int speedL, int speedR, int time);
+	public void forward(double distance);
+	public void turnLeft(double angle, double radiusTurn);
+	public void turnRight(double angle, double radiusTurn);
 }
