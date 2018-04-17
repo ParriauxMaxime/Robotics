@@ -11,8 +11,8 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 	public AbstractBehaviorRobot(BaseRegulatedMotor left, BaseRegulatedMotor right, double widthTrack, double wheelWidth, Behavior[] bList) {
 		super(left, right, widthTrack, wheelWidth);
 		this.behavioursArray = bList;
-		this.arbitrator = new Arbitrator(this.behavioursArray);
-		this.arbitrator.go();
+	//	this.arbitrator = new Arbitrator(this.behavioursArray);
+		/*this.arbitrator.go();
 		while (!Button.LEFT.isDown()) {
 			try {
 				Thread.sleep(100);
@@ -21,7 +21,7 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 				e.printStackTrace();
 			}
 		}
-		this.arbitrator.stop();
+		this.arbitrator.stop();*/
 	}
 
 }
