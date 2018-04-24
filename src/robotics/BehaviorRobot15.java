@@ -1,42 +1,59 @@
 package robotics;
 
+import behaviors.*;
+import lejos.hardware.Button;
+import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.*;
 import lejos.robotics.subsumption.Behavior;
+import lejos.robotics.chassis.*;
+import lejos.robotics.geometry.*;
+import lejos.robotics.mapping.*;
+import lejos.robotics.navigation.MoveController;
 import lejos.hardware.port.*;
 
 public class BehaviorRobot15 extends AbstractBehaviorRobot {
-	static double WHEEL_DIAMETER = 0.038;
-	static double WIDTH_TRACK = 0.1430;
-	protected int DEFAULT_SPEED = 600;
+	static double WHEEL_DIAMETER =  MoveController.WHEEL_SIZE_EV3 ;
+	static double WIDTH_TRACK = 14.50;
 	static BaseRegulatedMotor leftMotor = Motor.A;
 	static BaseRegulatedMotor rightMotor = Motor.D;
-	static  BaseRegulatedMotor pince = Motor.C;
-	static InfraredAdapter irAdapter = new InfraredAdapter(); 
-	static Port touchSensor = SensorPort.S1; 
-	public BehaviorRobot15() {
-		super(BehaviorRobot15.leftMotor, 
-				BehaviorRobot15.rightMotor, 
-				BehaviorRobot15.WIDTH_TRACK, 
-				BehaviorRobot15.WHEEL_DIAMETER,
-				BehaviorRobot15.getBehaviorList());
-		this.leftWheel.setSpeed(DEFAULT_SPEED);
-		this.rightWheel.setSpeed(DEFAULT_SPEED);
-		this.closePince();
-		//this.openPince();
+	static  BaseRegulatedMotor clamp = Motor.C;
+	static Port irPort = SensorPort.S1;
+	static Port colorPort = SensorPort.S2;
 	
-		// TODO Auto-generated constructor stub
+	public LineMap map = new LineMap(new Line[] {}, new Rectangle(0, 0, 1000, 1000));
+	public Point dumpPoint = new Point(0, 0);
+	boolean clampOpen = false;
+	
+	public void debugIR() throws InterruptedException {
+		while (Button.DOWN.isUp()) {
+			LCD.clear();
+			LCD.drawInt(this.irAdapter.getObjectDistance(), 4, 4);
+			Thread.sleep(100);
+		}
 	}
 	
-	void closePince() {
-		pince.rotate(-270);
+	public BehaviorRobot15() throws Exception {
+		super( new Wheel[] {
+				new WheeledChassis.Modeler(leftMotor, WHEEL_DIAMETER ).offset(WIDTH_TRACK / 2),
+				new WheeledChassis.Modeler(rightMotor, WHEEL_DIAMETER ).offset(-WIDTH_TRACK / 2)
+		}, irPort, colorPort, clamp, WHEEL_DIAMETER, WIDTH_TRACK);
+		this.setBehaviorList(this.getBehaviorList());
+		this.startArbitrator();
 	}
 	
-	void openPince() {
-		pince.rotate(360 * 3);
+	void clampToggle() {
+		this.clampOpen = !this.clampOpen;
 	}
 	
-	static protected Behavior[] getBehaviorList() {
+	protected Behavior[] getBehaviorList() {
 		return new Behavior[] { 
+				new BehaviorBlackZone(this),
+				new BehaviorGoTake(this),
+				new BehaviorSearch(this),
+				new BehaviorGrab(this),
+				new BehaviorGoBack(this),
+				new BehaviorRelease(this),
+		
 				//new BehaviorMove(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor),
 				//new BehaviorAvoid(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor, BehaviorRobot15.irAdapter),
 				//new BehaviorTouch(BehaviorRobot15.touchSensor),

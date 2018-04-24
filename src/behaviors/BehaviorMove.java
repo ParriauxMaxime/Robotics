@@ -1,4 +1,4 @@
-package robotics;
+package behaviors;
 
 import lejos.hardware.motor.*;
 import lejos.robotics.subsumption.Behavior;

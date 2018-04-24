@@ -1,16 +1,20 @@
 package robotics;
-import lejos.hardware.port.SensorPort;
+import lejos.hardware.port.*;
 import lejos.hardware.sensor.EV3IRSensor;
 import lejos.robotics.SampleProvider;
+import lejos.hardware.lcd.LCD;
 
 public class InfraredAdapter extends Thread {
 	int objectDistance = 1000;
-	EV3IRSensor irSensor = new EV3IRSensor(SensorPort.S2);
-	SampleProvider sp = irSensor.getDistanceMode();
+	EV3IRSensor irSensor;
+	SampleProvider sp;
 
-	public InfraredAdapter() {
+	public InfraredAdapter(Port  irSensor) {
+		this.irSensor = new EV3IRSensor( irSensor);
+		this.sp =  this.irSensor.getDistanceMode();
 		this.setDaemon(true);
 		this.start();
+		
 	}
 	
 	public void run() {
@@ -18,12 +22,14 @@ public class InfraredAdapter extends Thread {
 			float [] sample = new float[sp.sampleSize()];
 			sp.fetchSample(sample, 0);
 			if((int)sample[0]==0) 
-				objectDistance=1000;
+				this.objectDistance=0;
 			else 
-				objectDistance=(int)sample[0];
+				this.objectDistance=(int)sample[0];
+			//LCD.clear();
+			//LCD.drawInt(this.objectDistance, 2, 2);
 			Thread.yield();
 		}
 	}
-	public int getObjectDistance() {return objectDistance;}
+	public int getObjectDistance() {return this.objectDistance;}
 }
 

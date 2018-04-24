@@ -1,82 +1,70 @@
 package robotics;
+
 import lejos.hardware.motor.*;
+import lejos.hardware.port.Port;
+import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.navigation.*;
+import lejos.robotics.BaseMotor;
 import lejos.robotics.chassis.*;
 import lejos.robotics.pathfinding.*;
 
 
 public abstract class AbstractRobot implements IRobot {
-	protected double widthTrack;
-	protected BaseRegulatedMotor leftWheel;
-	protected BaseRegulatedMotor rightWheel;
-	protected double wheelDiameter;
+	protected Wheel[] wheels;
+	protected double wheelDiameter, widthTrack;
 	protected int DEFAULT_SPEED = 600;
-	MovePilot pilot;
-	Chassis chassis;
-	Navigator navigator;
+	public BaseRegulatedMotor leftWheel, rightWheel;
+	public InfraredAdapter irAdapter;
+	public EV3ColorSensor colorSensor;
+	public BaseRegulatedMotor clamp;
+	public MovePilot pilot;
+	protected Chassis chassis;
+	public	Navigator navigator;
+	protected boolean openClamp = false;
 
-	
-	AbstractRobot(BaseRegulatedMotor left, BaseRegulatedMotor right, double widthTrack, double wheelWidth) {
-		this.leftWheel = left;
-		this.rightWheel = right;
-		this.widthTrack = widthTrack;
-		this.wheelDiameter = wheelWidth;
-		Wheel R = WheeledChassis.modelWheel(this.rightWheel, this.wheelDiameter * 1000).offset((widthTrack * 1000 / 2));
-		Wheel L = WheeledChassis.modelWheel(this.leftWheel, this.wheelDiameter * 1000).offset(-(widthTrack * 1000 / 2));
-		this.chassis = new WheeledChassis(new Wheel[] {L, R}, WheeledChassis.TYPE_DIFFERENTIAL);
+	AbstractRobot(Wheel[] wheels, Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
+		this.wheels = wheels;
+		this.widthTrack = widthTrack ;
+		this.wheelDiameter = wheelDiameter;
+		this.irAdapter = new InfraredAdapter(irPort);
+		this.colorSensor = new EV3ColorSensor(colorPort);
+		this.clamp = clamp;
+		if (wheels.length != 2) {
+			throw new Exception("Abstract Robot should have 2 wheels");
+		}
+		this.leftWheel = (BaseRegulatedMotor)this.wheels[0].getMotor();
+		this.rightWheel = (BaseRegulatedMotor)this.wheels[1].getMotor();
+		this.chassis = new WheeledChassis(wheels, WheeledChassis.TYPE_DIFFERENTIAL);
 		this.pilot = new MovePilot(chassis);
 		this.navigator = new Navigator(this.pilot);
+		this.initClamp();
 	}
 	
+	public void initClamp() {
+		while (!this.clamp.isStalled()) {			
+			this.clamp.rotate(-90);
+		}
+	}
+	
+	public boolean getClampState() {
+		return this.openClamp;
+	}
+	
+	public void setClampState(boolean state) {
+		this.openClamp = state;
+	}
 	
 	public void resetTachoCount() {
-		this.leftWheel.resetTachoCount();
-		this.rightWheel.resetTachoCount();
+		for(int i = 0; i < this.wheels.length; i++) {
+			this.wheels[i].getMotor().resetTachoCount();
+		}
 	}
 	
 	public void resetSpeed() {
-		this.leftWheel.setSpeed(DEFAULT_SPEED);
-		this.rightWheel.setSpeed(DEFAULT_SPEED);
+		for(int i = 0; i < this.wheels.length; i++) {
+			this.wheels[i].getMotor().setSpeed(DEFAULT_SPEED);
+		}
 		this.pilot.setLinearSpeed(DEFAULT_SPEED);
-	
-	}
-	
-	public void testCircle() {
-		this.turnLeft(360, 0);
-	}
-	
-	public void assignementMotor() {
-		this.forward(0.6);
-		this.turnRight(180, 0.16);
-		this.forward(0.6);
-		this.turnRight(90, 0);
-		this.forward(0.32);
-		this.turnRight(90, 0);
-	}
-
-	public void assignementMovePilot() {
-		this.pilot.travel(600);
-		this.pilot.arc(-160, 180, false);
-		this.pilot.travel(600);
-		this.pilot.rotate(-90);
-		this.pilot.travel(320);
-		this.pilot.rotate(-90);
-	}
-	
-	protected Path makeArch(int radius, Waypoint offset, boolean back) {
-		Path p = new Path();
-		final int nbWaypoint = 4;
-		final double PiDivision = (Math.PI / (nbWaypoint * 2));
-		for (int i = 1; i <= nbWaypoint; i++) {
-			double x;
-			if (back == false) 
-				x = offset.x + radius * Math.sin(i * PiDivision);
-			else 
-				x = offset.x - radius * Math.sin(i * PiDivision);
-			double y = offset.y + radius * (-Math.cos((nbWaypoint - i) * PiDivision));
-			p.add(new Waypoint(x, y));
-			}
-		return p;
 	}
 	
 	public void assignementNavigator() {
@@ -94,6 +82,7 @@ public abstract class AbstractRobot implements IRobot {
 	
 	public void differentialDrive(int speedL, int speedR, int time) {
 		this.resetSpeed();
+		
 		this.rightWheel.synchronizeWith(new BaseRegulatedMotor[] {this.leftWheel});
 		this.rightWheel.setSpeed(speedR);
 		this.leftWheel.setSpeed(speedL);

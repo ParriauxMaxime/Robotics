@@ -11,8 +11,8 @@ public class Main {
 	static int G = 783;
 	static int A = 880;
 	static int B = 987;
-	static int []sounds = Sound.PIANO;
-	
+	static int[] sounds = Sound.PIANO;
+
 	public static void starWars1() {
 		Sound.playNote(sounds, D, 1000);
 		Sound.playNote(sounds, A, 1000);
@@ -21,7 +21,7 @@ public class Main {
 		Sound.playNote(sounds, E, 100);
 		Sound.playNote(sounds, D * 2, 1500);
 	}
-	
+
 	public static void starWars2() {
 		Sound.playNote(sounds, A, 250);
 		Sound.playNote(sounds, G, 250);
@@ -34,16 +34,16 @@ public class Main {
 		Sound.playNote(sounds, D, 500);
 		Sound.playNote(sounds, D, 500);
 	}
-	
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		//AbstractBehaviorRobot myRobot = new BehaviorRobot15();
-		
-		/*Sound.setVolume(5);
-		starWars1();
-		starWars1();
-		starWars2();
-		starWars1();*/
-		BehaviorRobot15 t = new BehaviorRobot15();
+		/*
+		 * Sound.setVolume(5); starWars1(); starWars1(); starWars2(); starWars1();
+		 */
+		try {
+			BehaviorRobot15 t = new BehaviorRobot15();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
