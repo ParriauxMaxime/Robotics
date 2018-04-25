@@ -14,15 +14,12 @@ import robotics.AbstractBehaviorRobot;
 import robotics.InfraredAdapter;
 import lejos.hardware.sensor.EV3ColorSensor;
 
-public class BehaviorSearch implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false;
+public class BehaviorSearch extends AbstractSmartBehavior  {
 	public Point zone;
 	int maxDistance = 45;
 
 	public BehaviorSearch(AbstractBehaviorRobot robot) {
-		
-		this.robot = robot;
+		super(robot);
 	}
 
 	public boolean takeControl() {

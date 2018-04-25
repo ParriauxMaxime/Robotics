@@ -9,17 +9,15 @@ import lejos.robotics.navigation.Pose;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorGoBack implements Behavior {
-	boolean suppressed = false; 
+public class BehaviorGoBack extends AbstractSmartBehavior {
 	Navigator navigator;
 	LineMap mapping;
-	AbstractBehaviorRobot robot;
 	Point zone;
 	float initHeading; 
 	int distance;
 	
 	public BehaviorGoBack(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 		Pose pose = this.robot.navigator.getPoseProvider().getPose();
 		this.zone = new Point(pose.getX(), pose.getY());
 		this.initHeading = pose.getHeading();

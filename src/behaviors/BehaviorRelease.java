@@ -7,12 +7,9 @@ import lejos.robotics.Color;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorRelease implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false;
-
+public class BehaviorRelease extends AbstractSmartBehavior {
 	public BehaviorRelease(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 	}
 
 	@Override
@@ -26,7 +23,7 @@ public class BehaviorRelease implements Behavior {
 		suppressed = false;
 		int angle = 3 * 360;
 		this.robot.clamp.rotate(angle, false);
-		this.robot.setClampState(false);
+		this.robot.setClampState(true);
 		this.robot.setObjectGrabbed(false);
 		this.robot.pilot.travel(-20);
 		this.robot.pilot.rotate(180);

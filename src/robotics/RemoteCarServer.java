@@ -3,6 +3,7 @@ package robotics;
 import java.io.*;
 import java.net.*;
 import lejos.hardware.*;
+import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.*;
 import lejos.hardware.port.MotorPort;
 
@@ -12,10 +13,18 @@ public class RemoteCarServer extends Thread {
 	private Socket client;
 	private static boolean looping = true;
 	private static ServerSocket server;
-	static EV3LargeRegulatedMotor right = new EV3LargeRegulatedMotor(MotorPort.B);
-	static EV3LargeRegulatedMotor left =  new EV3LargeRegulatedMotor(MotorPort.C);
+	private static AbstractBehaviorRobot robot;
+	private static InputStream in;
+	private static DataInputStream dIn;
+	private static OutputStream out;
+	private static DataOutputStream dOut;
 
 	public RemoteCarServer(Socket client) {
+		try {
+			robot = new BehaviorRobot15();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		this.client = client;
 		Button.ESCAPE.addKeyListener(new EscapeListener());
 	}
@@ -28,34 +37,57 @@ public class RemoteCarServer extends Thread {
 		}
 	}
 
-	public void carAction(int command) {
+	public void carAction(int command) throws Exception {
 		switch (command) {
-		case RemoteCarClient.BACKWARD:
-			RemoteCarServer.right.rotate(-360, true);
-			RemoteCarServer.left.rotate(-360);
+		case RemoteCarClient.CALIBRATE_CIRCLE:
+			robot.pilot.arc(0, 360);
 			break;
-		case RemoteCarClient.FORWARD:
-			RemoteCarServer.right.rotate(360, true);
-			RemoteCarServer.left.rotate(360);
+		case RemoteCarClient.CALIBRATE_DISTANCE:
+			robot.pilot.travel(100);
 			break;
-		case RemoteCarClient.RIGHT:
-			RemoteCarServer.right.rotateTo(170);
+		case RemoteCarClient.SEND_CALIBRATION:
+			double trackWidth = dIn.readDouble();
+			double wheelDiameter = dIn.readDouble();
+			robot.setWheelDiameter(wheelDiameter);
+			robot.setWidthTrack(trackWidth);
+			LCD.clear();
+			LCD.drawString(Double.toString(robot.getWheelDiameter()), 6, 4);
 			break;
-		case RemoteCarClient.LEFT:
-			RemoteCarServer.left.rotateTo(170);
+		case RemoteCarClient.NOTIFY:
+			sendData();
 			break;
+		case RemoteCarClient.START:
+			robot.startArbitrator();
+			break;
+		case RemoteCarClient.STOP:
+			robot.stopArbitrator();
+			break;
+		}
+	}
+	
+	public void sendData() {
+		try {
+			dOut.writeInt(0);
+			dOut.writeInt(robot.irAdapter.getObjectDistance());
+			dOut.writeInt(robot.colorSensor.getColorID());
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	public void run() {
 		System.out.println("CLIENT CONNECT");
 		try {
-			InputStream in = client.getInputStream();
-			DataInputStream dIn = new DataInputStream(in);
+			 in = client.getInputStream();
+			dIn = new DataInputStream(in);
+			out = client.getOutputStream();
+			dOut = new DataOutputStream(out);
 
 			while (client != null) {
 				int command = dIn.readInt();
-				System.out.println("REC:" + command);
+				if (command != 1) {
+					System.out.println("REC:" + command);	
+				}
 				if (command == RemoteCarClient.CLOSE) {
 					client.close();
 					client = null;
@@ -66,12 +98,13 @@ public class RemoteCarServer extends Thread {
 
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 	}
 
 	private class EscapeListener implements KeyListener {
-
 		public void keyPressed(Key k) {
 			looping = false;
 			System.exit(0);

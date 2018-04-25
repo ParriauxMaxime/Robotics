@@ -13,7 +13,7 @@ public abstract class AbstractRobot implements IRobot {
 	protected Wheel[] wheels;
 	protected double wheelDiameter, widthTrack;
 	protected int DEFAULT_SPEED = 600;
-	public BaseRegulatedMotor leftWheel, rightWheel;
+	public BaseRegulatedMotor leftMotor, rightMotor;
 	public InfraredAdapter irAdapter;
 	public EV3ColorSensor colorSensor;
 	public BaseRegulatedMotor clamp;
@@ -22,28 +22,57 @@ public abstract class AbstractRobot implements IRobot {
 	public	Navigator navigator;
 	protected boolean openClamp = false;
 
-	AbstractRobot(Wheel[] wheels, Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
-		this.wheels = wheels;
+	AbstractRobot(BaseRegulatedMotor[] wheels, Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
+		if (wheels.length != 2) {
+			throw new Exception("Abstract Robot should have 2 wheels");
+		}
+		this.leftMotor = wheels[0];
+		this.rightMotor = wheels[1];
 		this.widthTrack = widthTrack ;
 		this.wheelDiameter = wheelDiameter;
 		this.irAdapter = new InfraredAdapter(irPort);
 		this.colorSensor = new EV3ColorSensor(colorPort);
-		this.clamp = clamp;
-		if (wheels.length != 2) {
-			throw new Exception("Abstract Robot should have 2 wheels");
-		}
-		this.leftWheel = (BaseRegulatedMotor)this.wheels[0].getMotor();
-		this.rightWheel = (BaseRegulatedMotor)this.wheels[1].getMotor();
-		this.chassis = new WheeledChassis(wheels, WheeledChassis.TYPE_DIFFERENTIAL);
-		this.pilot = new MovePilot(chassis);
-		this.navigator = new Navigator(this.pilot);
-		this.initClamp();
+		this.initStuff();
 	}
 	
+	public void initStuff() {
+		this.wheels = new Wheel[] {
+				new WheeledChassis.Modeler(leftMotor, this.wheelDiameter).offset(this.widthTrack/ 2),
+				new WheeledChassis.Modeler(rightMotor, this.wheelDiameter).offset(-this.widthTrack / 2)
+		};
+		this.chassis = new WheeledChassis(this .wheels, WheeledChassis.TYPE_DIFFERENTIAL);
+		this.pilot = new MovePilot(chassis);
+		this.navigator = new Navigator(this.pilot);
+	}
+	
+	
+	public double getWheelDiameter() {
+		return wheelDiameter;
+	}
+
+
+	public void setWheelDiameter(double wheelDiameter) {
+		this.wheelDiameter = wheelDiameter;
+		this.initStuff();
+	}
+
+
+	public double getWidthTrack() {
+		return widthTrack;
+	}
+
+
+	public void setWidthTrack(double widthTrack) {
+		this.widthTrack = widthTrack;
+		this.initStuff();
+	}
+
+
 	public void initClamp() {
 		while (!this.clamp.isStalled()) {			
 			this.clamp.rotate(-90);
 		}
+		this.setClampState(false);
 	}
 	
 	public boolean getClampState() {
@@ -83,18 +112,18 @@ public abstract class AbstractRobot implements IRobot {
 	public void differentialDrive(int speedL, int speedR, int time) {
 		this.resetSpeed();
 		
-		this.rightWheel.synchronizeWith(new BaseRegulatedMotor[] {this.leftWheel});
-		this.rightWheel.setSpeed(speedR);
-		this.leftWheel.setSpeed(speedL);
-		this.rightWheel.startSynchronization();
-		this.rightWheel.forward();
-		this.leftWheel.forward();
-		this.rightWheel.endSynchronization();
+		this.rightMotor.synchronizeWith(new BaseRegulatedMotor[] {this.leftMotor});
+		this.rightMotor.setSpeed(speedR);
+		this.leftMotor.setSpeed(speedL);
+		this.rightMotor.startSynchronization();
+		this.rightMotor.forward();
+		this.leftMotor.forward();
+		this.rightMotor.endSynchronization();
 		try {Thread.sleep(time * 1000);} catch (Exception e) {}
-		this.rightWheel.startSynchronization();
-		this.leftWheel.stop();
-		this.rightWheel.stop();
-		this.rightWheel.endSynchronization();
+		this.rightMotor.startSynchronization();
+		this.leftMotor.stop();
+		this.rightMotor.stop();
+		this.rightMotor.endSynchronization();
 	}
 
 	@Override
@@ -129,7 +158,7 @@ public abstract class AbstractRobot implements IRobot {
 		int time = 1;
 		int internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));
 		int externalSpeed = (int)(((radiusTurn + widthTrack) * angle) / ((wheelDiameter/2) * time));
-		this.leftWheel.synchronizeWith(new BaseRegulatedMotor[] {this.rightWheel});
+		this.leftMotor.synchronizeWith(new BaseRegulatedMotor[] {this.rightMotor});
 		while (externalSpeed > DEFAULT_SPEED || internalSpeed > DEFAULT_SPEED) {
 			time++;
 			internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));

@@ -33,26 +33,22 @@ public class BehaviorRobot15 extends AbstractBehaviorRobot {
 	}
 	
 	public BehaviorRobot15() throws Exception {
-		super( new Wheel[] {
-				new WheeledChassis.Modeler(leftMotor, WHEEL_DIAMETER ).offset(WIDTH_TRACK / 2),
-				new WheeledChassis.Modeler(rightMotor, WHEEL_DIAMETER ).offset(-WIDTH_TRACK / 2)
+		super(new BaseRegulatedMotor[] {
+				leftMotor,
+				rightMotor,
 		}, irPort, colorPort, clamp, WHEEL_DIAMETER, WIDTH_TRACK);
 		this.setBehaviorList(this.getBehaviorList());
-		this.startArbitrator();
 	}
-	
-	void clampToggle() {
-		this.clampOpen = !this.clampOpen;
-	}
+
 	
 	protected Behavior[] getBehaviorList() {
 		return new Behavior[] { 
 				new BehaviorBlackZone(this),
+				new BehaviorGoBack(this),
+				new BehaviorRelease(this),
 				new BehaviorGoTake(this),
 				new BehaviorSearch(this),
 				new BehaviorGrab(this),
-				new BehaviorGoBack(this),
-				new BehaviorRelease(this),
 		
 				//new BehaviorMove(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor),
 				//new BehaviorAvoid(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor, BehaviorRobot15.irAdapter),

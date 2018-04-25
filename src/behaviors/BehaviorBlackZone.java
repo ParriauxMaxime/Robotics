@@ -9,14 +9,11 @@ import lejos.utility.Delay;
 import robotics.AbstractBehaviorRobot;
 import lejos.hardware.sensor.EV3ColorSensor;
 
-public class BehaviorBlackZone implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false; 
-
+public class BehaviorBlackZone extends AbstractSmartBehavior {
 	public BehaviorBlackZone(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 	}
-
+	
 	public boolean takeControl() {
 		return this.robot.colorSensor.getColorID() == Color.BLACK;
 	}

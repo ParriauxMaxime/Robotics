@@ -6,17 +6,14 @@ import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 import robotics.InfraredAdapter;
 
-public class BehaviorGrab implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false;
-	
+public class BehaviorGrab  extends AbstractSmartBehavior {
 	public BehaviorGrab(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 	}
 
 	@Override
 	public boolean takeControl() {
-		return this.robot.irAdapter.getObjectDistance() < 5;
+		return this.robot.irAdapter.getObjectDistance() <= 5 && this.robot.isObjectGrabbed() == false;
 	}
 
 	@Override
@@ -27,7 +24,7 @@ public class BehaviorGrab implements Behavior {
 		while (!this.robot.clamp.isStalled()) {			
 			this.robot.clamp.rotate(-angle);
 		}
-		this.robot.setClampState(true);
+		this.robot.setClampState(false);
 		this.robot.setObjectGrabbed(true);
 		this.suppress();
 	}

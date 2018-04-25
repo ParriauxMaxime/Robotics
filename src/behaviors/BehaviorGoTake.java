@@ -7,20 +7,18 @@ import lejos.robotics.navigation.Navigator;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorGoTake implements Behavior {
-	boolean suppressed = false; 
+public class BehaviorGoTake extends AbstractSmartBehavior {
 	Navigator navigator;
 	LineMap mapping;
-	AbstractBehaviorRobot robot;
 	int distance;
 	
 	public BehaviorGoTake(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 	}
 
 	public boolean takeControl() {
 		this.distance = this.robot.irAdapter.getObjectDistance();
-		if ( distance <= 45 && distance >= 5 && this.robot.isObjectGrabbed() == false) 
+		if ( this.distance <= 45 && this.distance >= 5 && this.robot.isObjectGrabbed() == false) 
 			return true;
 		return false;
 	}
@@ -58,11 +56,11 @@ public class BehaviorGoTake implements Behavior {
 			this.robot.setClampState(true);
 			this.robot.clamp.rotate(3 * 360, false);
 		}
-		this.robot.navigator.rotateTo(this.fineTune());
 		int distance = this.robot.irAdapter.getObjectDistance();
 		this.distance = distance;
-		while (distance >= 5 && distance <= this.distance) {
-			this.robot.pilot.travel(distance);
+		this.robot.navigator.rotateTo(this.fineTune());
+		while (distance > 5 && distance <= this.distance) {
+			this.robot.pilot.travel(distance / 5);
 			distance = this.robot.irAdapter.getObjectDistance();
 		}
 		if (distance > this.distance) {

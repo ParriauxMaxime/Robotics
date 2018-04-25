@@ -8,12 +8,10 @@ import lejos.robotics.Color;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorInspectColor implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false;
+public class BehaviorInspectColor  extends AbstractSmartBehavior  {
 
 	public BehaviorInspectColor(AbstractBehaviorRobot robot) {
-		this.robot = robot;
+		super(robot);
 	}
 
 	@Override

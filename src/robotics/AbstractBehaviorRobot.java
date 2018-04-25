@@ -11,7 +11,7 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 	protected boolean objectFound = false;
 	protected boolean objectGrabbed = false;
 	
-	public AbstractBehaviorRobot(Wheel[] wheels,  Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
+	public AbstractBehaviorRobot(BaseRegulatedMotor[] wheels,  Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
 		super(wheels, irPort, colorPort, clamp, wheelDiameter, widthTrack);
 	}
 	
@@ -22,7 +22,7 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 	public void setObjectGrabbed(boolean objectGrabbed) {
 		this.objectGrabbed = objectGrabbed;
 	}
-
+	
 	public boolean getObjectFound() {
 		return this.objectFound;
 	}
@@ -41,7 +41,8 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 	
 	void startArbitrator() throws Exception {
 		if (this.behavioursArray != null) {
-			this.arbitrator = new Arbitrator(this.behavioursArray);			
+			this.arbitrator = new Arbitrator(this.behavioursArray);	
+			this.initClamp();
 			this.arbitrator.go();
 		}
 		else
