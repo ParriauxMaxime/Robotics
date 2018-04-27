@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;

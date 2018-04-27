@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.lcd.LCD;
 import lejos.robotics.Color;
@@ -9,25 +9,22 @@ import lejos.utility.Delay;
 import robotics.AbstractBehaviorRobot;
 import lejos.hardware.sensor.EV3ColorSensor;
 
-public class BehaviorBlackZone extends AbstractSmartBehavior {
+public class BehaviorBlackZone extends SmartBehavior {
 	public BehaviorBlackZone(AbstractBehaviorRobot robot) {
 		super(robot);
 	}
 	
-	public boolean takeControl() {
+	@Override
+	public final boolean takeControl() {
 		return this.robot.colorSensor.getColorID() == Color.BLACK;
 	}
 
-	public void action() {
-		suppressed = false;
+	@Override
+	public final void  action() {
+		super.action();
 		int angle = (int)Math.round(Math.random() * 40) + 140;
 		int reverse  = Math.round(Math.random()) == 0 ? -1 : 1;
-		this.robot.pilot.arc(70, reverse * angle);
+		this.robot.pilot.arc(20, reverse * angle);
 		this.suppress();
 	}
-
-	public void suppress() {
-		suppressed = true;
-	}
-
 }

@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.motor.*;
 import lejos.hardware.port.*;
@@ -6,7 +6,7 @@ import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 import robotics.InfraredAdapter;
 
-public class BehaviorGrab  extends AbstractSmartBehavior {
+public class BehaviorGrab  extends SmartBehavior {
 	public BehaviorGrab(AbstractBehaviorRobot robot) {
 		super(robot);
 	}
@@ -18,7 +18,7 @@ public class BehaviorGrab  extends AbstractSmartBehavior {
 
 	@Override
 	public void action() {
-		suppressed = false;
+		super.action();
 		int angle = 360;
 		this.robot.pilot.travel(5);
 		while (!this.robot.clamp.isStalled()) {			
@@ -28,10 +28,4 @@ public class BehaviorGrab  extends AbstractSmartBehavior {
 		this.robot.setObjectGrabbed(true);
 		this.suppress();
 	}
-
-	@Override
-	public void suppress() {
-		suppressed = true;
-	}
-
 }

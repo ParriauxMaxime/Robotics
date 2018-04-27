@@ -41,9 +41,19 @@ public class Main {
 		 * Sound.setVolume(5); starWars1(); starWars1(); starWars2(); starWars1();
 		 */
 		try {
-			BehaviorRobot15 t = new BehaviorRobot15();
+			final BehaviorRobot15 t = new BehaviorRobot15();
+			/*Thread d = new Thread() {
+				@Override
+				public void run() {
+			
+				}
+			};*/
+			t.startArbitrator();
+			//d.start();
 		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 	}
 }

@@ -5,14 +5,15 @@ import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.navigation.*;
 import lejos.robotics.BaseMotor;
+import lejos.robotics.Color;
 import lejos.robotics.chassis.*;
 import lejos.robotics.pathfinding.*;
 
 
 public abstract class AbstractRobot implements IRobot {
 	protected Wheel[] wheels;
-	protected double wheelDiameter, widthTrack;
-	protected int DEFAULT_SPEED = 600;
+	protected double wheelDiameter = 4.15,  widthTrack = 13.3;
+	protected final int DEFAULT_SPEED = 600;
 	public BaseRegulatedMotor leftMotor, rightMotor;
 	public InfraredAdapter irAdapter;
 	public EV3ColorSensor colorSensor;
@@ -22,12 +23,45 @@ public abstract class AbstractRobot implements IRobot {
 	public	Navigator navigator;
 	protected boolean openClamp = false;
 
+	AbstractRobot(BaseRegulatedMotor[] wheels, double wheelDiameter, double widthTrack) throws Exception {
+		if (wheels.length != 2) {
+			throw new Exception("Abstract Robot should have 2 wheels");
+		}
+		this.leftMotor = wheels[0];
+		this.rightMotor = wheels[1];
+		this.widthTrack = widthTrack ;
+		this.wheelDiameter = wheelDiameter;
+		this.initStuff();
+	}
+	
+	AbstractRobot(BaseRegulatedMotor[] wheels) throws Exception {
+		if (wheels.length != 2) {
+			throw new Exception("Abstract Robot should have 2 wheels");
+		}
+		this.leftMotor = wheels[0];
+		this.rightMotor = wheels[1];
+		this.initStuff();
+	}
+	
+	AbstractRobot(BaseRegulatedMotor[] wheels, Port irPort, Port colorPort, BaseRegulatedMotor clamp) throws Exception {
+		if (wheels.length != 2) {
+			throw new Exception("Abstract Robot should have 2 wheels");
+		}
+		this.leftMotor = wheels[0];
+		this.rightMotor = wheels[1];
+		this.clamp = clamp;
+		this.irAdapter = new InfraredAdapter(irPort);
+		this.colorSensor = new EV3ColorSensor(colorPort);
+		this.initStuff();
+	}
+	
 	AbstractRobot(BaseRegulatedMotor[] wheels, Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
 		if (wheels.length != 2) {
 			throw new Exception("Abstract Robot should have 2 wheels");
 		}
 		this.leftMotor = wheels[0];
 		this.rightMotor = wheels[1];
+		this.clamp = clamp;
 		this.widthTrack = widthTrack ;
 		this.wheelDiameter = wheelDiameter;
 		this.irAdapter = new InfraredAdapter(irPort);
@@ -36,12 +70,18 @@ public abstract class AbstractRobot implements IRobot {
 	}
 	
 	public void initStuff() {
+		if (this.clamp != null) {
+			
+			//this.clamp.setStallThreshold(1, 100);
+		}
 		this.wheels = new Wheel[] {
 				new WheeledChassis.Modeler(leftMotor, this.wheelDiameter).offset(this.widthTrack/ 2),
 				new WheeledChassis.Modeler(rightMotor, this.wheelDiameter).offset(-this.widthTrack / 2)
 		};
 		this.chassis = new WheeledChassis(this .wheels, WheeledChassis.TYPE_DIFFERENTIAL);
 		this.pilot = new MovePilot(chassis);
+		this.pilot.setLinearSpeed(10);
+		this.pilot.setAngularSpeed(90);
 		this.navigator = new Navigator(this.pilot);
 	}
 	
@@ -61,7 +101,6 @@ public abstract class AbstractRobot implements IRobot {
 		return widthTrack;
 	}
 
-
 	public void setWidthTrack(double widthTrack) {
 		this.widthTrack = widthTrack;
 		this.initStuff();
@@ -70,7 +109,7 @@ public abstract class AbstractRobot implements IRobot {
 
 	public void initClamp() {
 		while (!this.clamp.isStalled()) {			
-			this.clamp.rotate(-90);
+			this.clamp.rotate(-180);
 		}
 		this.setClampState(false);
 	}

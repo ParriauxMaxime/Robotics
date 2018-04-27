@@ -1,13 +1,11 @@
-package behaviors;
+package robotics.behaviors;
 
-import lejos.hardware.lcd.LCD;
 import lejos.robotics.mapping.LineMap;
-import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Navigator;
-import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorGoTake extends AbstractSmartBehavior {
+public class BehaviorGoTake extends SmartBehavior {
+	static final  int WEIRD_CONSTANT = 1, MIN_DISTANCE = 5, MAX_DISTANCE = 45;
 	Navigator navigator;
 	LineMap mapping;
 	int distance;
@@ -16,11 +14,10 @@ public class BehaviorGoTake extends AbstractSmartBehavior {
 		super(robot);
 	}
 
-	public boolean takeControl() {
+	@Override
+	public final boolean takeControl() {
 		this.distance = this.robot.irAdapter.getObjectDistance();
-		if ( this.distance <= 45 && this.distance >= 5 && this.robot.isObjectGrabbed() == false) 
-			return true;
-		return false;
+		return  this.distance <= MAX_DISTANCE && this.distance >= MIN_DISTANCE && this.robot.isObjectGrabbed() == false;
 	}
 	
 	public float fineTune() {
@@ -50,17 +47,18 @@ public class BehaviorGoTake extends AbstractSmartBehavior {
 		return wantedHeading;
 	}
 
-	public void action() {
-		suppressed = false;
+	@Override
+	public final void action() {
+		super.action();
 		if (this.robot.getClampState() == false) {
 			this.robot.setClampState(true);
 			this.robot.clamp.rotate(3 * 360, false);
 		}
 		int distance = this.robot.irAdapter.getObjectDistance();
 		this.distance = distance;
-		this.robot.navigator.rotateTo(this.fineTune());
-		while (distance > 5 && distance <= this.distance) {
-			this.robot.pilot.travel(distance / 5);
+		//this.robot.navigator.rotateTo(this.fineTune());
+		while (distance > MIN_DISTANCE && distance <= this.distance && distance < MAX_DISTANCE) {
+			this.robot.pilot.travel(distance / 2);
 			distance = this.robot.irAdapter.getObjectDistance();
 		}
 		if (distance > this.distance) {
@@ -68,9 +66,10 @@ public class BehaviorGoTake extends AbstractSmartBehavior {
 		}
 		this.suppress();
 	}
-
-	public void suppress() {
-		suppressed = true;
+	
+	@Override
+	public final void suppress() {
+		super.suppress();
+		this.robot.pilot.stop();
 	}
-
 }

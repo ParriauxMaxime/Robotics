@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.*;
@@ -7,7 +7,7 @@ import lejos.robotics.Color;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorRelease extends AbstractSmartBehavior {
+public class BehaviorRelease extends SmartBehavior {
 	public BehaviorRelease(AbstractBehaviorRobot robot) {
 		super(robot);
 	}
@@ -20,20 +20,14 @@ public class BehaviorRelease extends AbstractSmartBehavior {
 
 	@Override
 	public void action() {
-		suppressed = false;
+		super.action();
 		int angle = 3 * 360;
 		this.robot.clamp.rotate(angle, false);
-		this.robot.setClampState(true);
-		this.robot.setObjectGrabbed(false);
 		this.robot.pilot.travel(-20);
 		this.robot.pilot.rotate(180);
+		this.robot.setClampState(true);
+		this.robot.setObjectGrabbed(false);
 		this.robot.initClamp();
 		this.suppress();
 	}
-
-	@Override
-	public void suppress() {
-		suppressed = true;
-	}
-
 }

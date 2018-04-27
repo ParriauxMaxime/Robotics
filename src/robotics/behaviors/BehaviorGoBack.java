@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.lcd.LCD;
 import lejos.robotics.geometry.Point;
@@ -9,32 +9,35 @@ import lejos.robotics.navigation.Pose;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorGoBack extends AbstractSmartBehavior {
+public final class BehaviorGoBack extends SmartBehavior {
 	Navigator navigator;
 	LineMap mapping;
 	Point zone;
 	float initHeading; 
 	int distance;
+	Pose pose;
 	
 	public BehaviorGoBack(AbstractBehaviorRobot robot) {
 		super(robot);
-		Pose pose = this.robot.navigator.getPoseProvider().getPose();
+		this.pose = this.robot.navigator.getPoseProvider().getPose();
 		this.zone = new Point(pose.getX(), pose.getY());
 		this.initHeading = pose.getHeading();
 	}
 
-	public boolean takeControl() {
-		return this.robot.isObjectGrabbed();
+	@Override
+	public final boolean takeControl() {
+		return this.robot.isObjectGrabbed() && this.zone.distance(pose.getX(), pose.getY()) > 2;
 	}
 
-	public void action() {
-		suppressed = false;
-		this.robot.navigator.goTo(this.zone.x, this.zone.y, this.initHeading);
+	@Override
+	public final void action() {
+		super.action();
+		this.robot.navigator.goTo(this.zone.x, this.zone.y, 360 - this.initHeading);
 		this.suppress();
 	}
-
-	public void suppress() {
-		suppressed = true;
+	
+	@Override 
+	public final void suppress() {
+		this.robot.navigator.stop();
 	}
-
 }

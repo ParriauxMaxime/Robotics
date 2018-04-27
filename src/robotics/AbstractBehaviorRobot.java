@@ -6,13 +6,26 @@ import lejos.robotics.chassis.Wheel;
 import lejos.robotics.subsumption.*;
 
 public class AbstractBehaviorRobot extends AbstractRobot {
-	Behavior[] behavioursArray;
-	Arbitrator arbitrator;
+	Behavior[] behavioursArray = {};
+	protected Arbitrator arbitrator;
 	protected boolean objectFound = false;
 	protected boolean objectGrabbed = false;
+	protected String currentBehavior = "";
 	
+	public String getCurrentBehavior() {
+		return currentBehavior;
+	}
+
+	public void setCurrentBehavior(String currentBehavior) {
+		this.currentBehavior = currentBehavior;
+	}
+
 	public AbstractBehaviorRobot(BaseRegulatedMotor[] wheels,  Port irPort, Port colorPort, BaseRegulatedMotor clamp, double wheelDiameter, double widthTrack) throws Exception {
 		super(wheels, irPort, colorPort, clamp, wheelDiameter, widthTrack);
+	}
+	
+	public AbstractBehaviorRobot(BaseRegulatedMotor[] wheels,  Port irPort, Port colorPort, BaseRegulatedMotor clamp) throws Exception {
+		super(wheels, irPort, colorPort, clamp);
 	}
 	
 	public boolean isObjectGrabbed() {
@@ -39,17 +52,12 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 		return this.behavioursArray;
 	}
 	
-	void startArbitrator() throws Exception {
-		if (this.behavioursArray != null) {
-			this.arbitrator = new Arbitrator(this.behavioursArray);	
+	public void startArbitrator()  {
 			this.initClamp();
 			this.arbitrator.go();
-		}
-		else
-			throw new Exception("You should define a behaviourArray");
 	}
 	
-	void stopArbitrator() {
+	public void stopArbitrator() {
 		this.arbitrator.stop();
 	}
 

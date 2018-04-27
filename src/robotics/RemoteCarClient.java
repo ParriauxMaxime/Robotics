@@ -28,7 +28,7 @@ public class RemoteCarClient extends Frame implements KeyListener {
 
 	Thread dataHandler;
 
-	Label labIrDistance, labColorSensor;
+	Label labIrDistance, labColorSensor, labCurrentBehavior;
 	Button btnConnect;
 	Button btnStart;
 	Button btnStop;
@@ -92,8 +92,9 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		txtTrackWidth = new TextField(Double.toString(trackWidth), 16);
 		labIrDistance = new Label(String.valueOf(irDistance));
 		labColorSensor = new Label(String.valueOf(color));
+		labCurrentBehavior = new Label(behaviour);
 
-		dataHandler = new Thread(new DataHandler(labIrDistance, labColorSensor));
+		dataHandler = new Thread(new DataHandler(labIrDistance, labColorSensor, labCurrentBehavior));
 
 		messages = new TextArea("status: DISCONNECTED");
 		messages.setEditable(false);
@@ -123,6 +124,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 		south.add(labIrDistance);
 		south.add(new Label("ColorSensor: "));
 		south.add(labColorSensor);
+		south.add(new Label("Current behavior"));
+		south.add(labCurrentBehavior);
 
 		mainPanel.add(north, "North");
 		mainPanel.add(center, "Center");
@@ -154,12 +157,12 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	}
 
 	private class DataHandler implements Runnable {
-		Label ir, color;
+		Label ir, color, behavior;
 
-		public DataHandler(Label irDistance, Label color) {
+		public DataHandler(Label irDistance, Label color, Label behavior) {
 			this.ir = irDistance;
 			this.color = color;
-			Thread.yield();
+			this.behavior = behavior;
 		}
 
 		public void run() {
@@ -170,6 +173,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 					if (verif == 0) {
 						irDistance = inStream.readInt();
 						RemoteCarClient.color = inStream.readInt();
+						behaviour = inStream.readUTF();
+						this.behavior.setText(behaviour);
 						this.ir.setText(String.valueOf(irDistance));
 						this.color.setText(String.valueOf(RemoteCarClient.color));
 					}

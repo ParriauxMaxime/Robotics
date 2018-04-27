@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.lcd.LCD;
 import lejos.robotics.RegulatedMotor;
@@ -21,10 +21,10 @@ public class BehaviorAvoid implements Behavior {
 
 	public void action() {
 		backing_up = true;
-		this.robot.leftWheel.rotate(-600, true);
-		this.robot.rightWheel.rotate(-600);
-		this.robot.leftWheel.rotate(450, true);
-		this.robot.rightWheel.rotate(-450);
+		this.robot.leftMotor.rotate(-600, true);
+		this.robot.rightMotor.rotate(-600);
+		this.robot.leftMotor.rotate(450, true);
+		this.robot.rightMotor.rotate(-450);
 		backing_up = false;
 	}
 

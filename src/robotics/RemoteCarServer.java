@@ -18,6 +18,7 @@ public class RemoteCarServer extends Thread {
 	private static DataInputStream dIn;
 	private static OutputStream out;
 	private static DataOutputStream dOut;
+	private Thread threadArbitrator;
 
 	public RemoteCarServer(Socket client) {
 		try {
@@ -57,9 +58,17 @@ public class RemoteCarServer extends Thread {
 			sendData();
 			break;
 		case RemoteCarClient.START:
-			robot.startArbitrator();
+			threadArbitrator = new Thread() {
+				@Override
+				public void run() {
+					robot.startArbitrator();					
+					}
+				};
+				threadArbitrator.setDaemon(true);
+				threadArbitrator.start();
 			break;
 		case RemoteCarClient.STOP:
+			threadArbitrator.interrupt();
 			robot.stopArbitrator();
 			break;
 		}
@@ -70,7 +79,8 @@ public class RemoteCarServer extends Thread {
 			dOut.writeInt(0);
 			dOut.writeInt(robot.irAdapter.getObjectDistance());
 			dOut.writeInt(robot.colorSensor.getColorID());
-		} catch (IOException e) {
+			dOut.writeUTF(robot.getCurrentBehavior());
+			} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
@@ -100,7 +110,7 @@ public class RemoteCarServer extends Thread {
 			e.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		} 
 
 	}
 

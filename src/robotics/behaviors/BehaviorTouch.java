@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.robotics.subsumption.*;
 import lejos.hardware.port.*;

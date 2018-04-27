@@ -1,24 +1,21 @@
 package robotics;
 
-import behaviors.*;
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.*;
+import lejos.robotics.subsumption.Arbitrator;
 import lejos.robotics.subsumption.Behavior;
-import lejos.robotics.chassis.*;
+import robotics.behaviors.*;
 import lejos.robotics.geometry.*;
 import lejos.robotics.mapping.*;
-import lejos.robotics.navigation.MoveController;
 import lejos.hardware.port.*;
 
 public class BehaviorRobot15 extends AbstractBehaviorRobot {
-	static double WHEEL_DIAMETER =  MoveController.WHEEL_SIZE_EV3 ;
-	static double WIDTH_TRACK = 14.50;
-	static BaseRegulatedMotor leftMotor = Motor.A;
-	static BaseRegulatedMotor rightMotor = Motor.D;
-	static  BaseRegulatedMotor clamp = Motor.C;
-	static Port irPort = SensorPort.S1;
-	static Port colorPort = SensorPort.S2;
+	static final BaseRegulatedMotor leftMotor = Motor.A;
+	static final BaseRegulatedMotor rightMotor = Motor.D;
+	static  final BaseRegulatedMotor clamp = Motor.C;
+	static final Port irPort = SensorPort.S1;
+	static final Port colorPort = SensorPort.S2;
 	
 	public LineMap map = new LineMap(new Line[] {}, new Rectangle(0, 0, 1000, 1000));
 	public Point dumpPoint = new Point(0, 0);
@@ -36,23 +33,20 @@ public class BehaviorRobot15 extends AbstractBehaviorRobot {
 		super(new BaseRegulatedMotor[] {
 				leftMotor,
 				rightMotor,
-		}, irPort, colorPort, clamp, WHEEL_DIAMETER, WIDTH_TRACK);
+		}, irPort, colorPort, clamp);
 		this.setBehaviorList(this.getBehaviorList());
+		this.arbitrator = new Arbitrator((Behavior [])(this.getBehaviorList()));
 	}
 
 	
-	protected Behavior[] getBehaviorList() {
-		return new Behavior[] { 
-				new BehaviorBlackZone(this),
+	protected SmartBehavior[] getBehaviorList() {
+		return new SmartBehavior[] { 
 				new BehaviorGoBack(this),
 				new BehaviorRelease(this),
-				new BehaviorGoTake(this),
 				new BehaviorSearch(this),
+				new BehaviorGoTake(this),
 				new BehaviorGrab(this),
-		
-				//new BehaviorMove(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor),
-				//new BehaviorAvoid(BehaviorRobot15.leftMotor, BehaviorRobot15.rightMotor, BehaviorRobot15.irAdapter),
-				//new BehaviorTouch(BehaviorRobot15.touchSensor),
+				new BehaviorBlackZone(this),
 		};
 	}
 

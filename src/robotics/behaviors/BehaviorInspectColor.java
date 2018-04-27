@@ -1,4 +1,4 @@
-package behaviors;
+package robotics.behaviors;
 
 import lejos.hardware.Button;
 import lejos.hardware.lcd.LCD;
@@ -8,7 +8,7 @@ import lejos.robotics.Color;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorInspectColor  extends AbstractSmartBehavior  {
+public class BehaviorInspectColor  extends SmartBehavior  {
 
 	public BehaviorInspectColor(AbstractBehaviorRobot robot) {
 		super(robot);
