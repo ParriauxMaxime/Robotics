@@ -3,8 +3,8 @@ package robotics;
 import java.io.*;
 import java.net.Socket;
 
-import lejos.robotics.chassis.Wheel;
-import lejos.robotics.navigation.MoveController;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -18,8 +18,9 @@ public class RemoteCarClient extends Frame implements KeyListener {
 	public static int color = -1;
 	public static String behaviour = "";
 	public static double wheelDiameter = 4.15;
-	public static double trackWidth = 13.3;
+	public static double trackWidth = 13.47;
 	public static final int CALIBRATE_CIRCLE = 10, CALIBRATE_DISTANCE = 11, SEND_CALIBRATION = 12, NOTIFY = 1, START = 42, STOP = 43,
+			DEBUG = 78,
 			FORWARD = 87, // W = main up
 			STRAIGHT = 83, // S = straight
 			LEFT = 65, // A = left
@@ -200,7 +201,8 @@ public class RemoteCarClient extends Frame implements KeyListener {
 			} else if (command.equals("Calibrate (distance)")) {
 				sendCommand(CALIBRATE_DISTANCE);
 			} else if (command.equals("Send calibration")) {
-				sendCalibration();
+			//sendCommand(DEBUG);
+					sendCalibration();
 			} else if (command.equals("Start arbitrator")) {
 				sendCommand(START);
 				btnStart.setEnabled(false);
@@ -211,10 +213,6 @@ public class RemoteCarClient extends Frame implements KeyListener {
 				btnStart.setEnabled(true);
 			}
 		}
-	}
-
-	static void getData() {
-
 	}
 
 	public void connect() {

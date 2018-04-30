@@ -12,11 +12,11 @@ import lejos.robotics.pathfinding.*;
 
 public abstract class AbstractRobot implements IRobot {
 	protected Wheel[] wheels;
-	protected double wheelDiameter = 4.15,  widthTrack = 13.3;
-	protected final int DEFAULT_SPEED = 600;
+	protected double wheelDiameter = 4.15,  widthTrack = 13.47;
+	protected final int LINEAR_SPEED = 10, ANGULAR_SPEED = 60;
 	public BaseRegulatedMotor leftMotor, rightMotor;
 	public InfraredAdapter irAdapter;
-	public EV3ColorSensor colorSensor;
+	public ColorAdapter colorAdapter;
 	public BaseRegulatedMotor clamp;
 	public MovePilot pilot;
 	protected Chassis chassis;
@@ -51,7 +51,7 @@ public abstract class AbstractRobot implements IRobot {
 		this.rightMotor = wheels[1];
 		this.clamp = clamp;
 		this.irAdapter = new InfraredAdapter(irPort);
-		this.colorSensor = new EV3ColorSensor(colorPort);
+		this.colorAdapter = new ColorAdapter(colorPort);
 		this.initStuff();
 	}
 	
@@ -65,7 +65,7 @@ public abstract class AbstractRobot implements IRobot {
 		this.widthTrack = widthTrack ;
 		this.wheelDiameter = wheelDiameter;
 		this.irAdapter = new InfraredAdapter(irPort);
-		this.colorSensor = new EV3ColorSensor(colorPort);
+		this.colorAdapter = new ColorAdapter(colorPort);
 		this.initStuff();
 	}
 	
@@ -80,8 +80,8 @@ public abstract class AbstractRobot implements IRobot {
 		};
 		this.chassis = new WheeledChassis(this .wheels, WheeledChassis.TYPE_DIFFERENTIAL);
 		this.pilot = new MovePilot(chassis);
-		this.pilot.setLinearSpeed(10);
-		this.pilot.setAngularSpeed(90);
+		this.pilot.setLinearSpeed(LINEAR_SPEED);
+		this.pilot.setAngularSpeed(ANGULAR_SPEED);
 		this.navigator = new Navigator(this.pilot);
 	}
 	
@@ -130,9 +130,9 @@ public abstract class AbstractRobot implements IRobot {
 	
 	public void resetSpeed() {
 		for(int i = 0; i < this.wheels.length; i++) {
-			this.wheels[i].getMotor().setSpeed(DEFAULT_SPEED);
+			this.wheels[i].getMotor().setSpeed(LINEAR_SPEED);
 		}
-		this.pilot.setLinearSpeed(DEFAULT_SPEED);
+		this.pilot.setLinearSpeed(LINEAR_SPEED);
 	}
 	
 	public void assignementNavigator() {
@@ -172,7 +172,7 @@ public abstract class AbstractRobot implements IRobot {
 		double nbTurn = (distance / wheelDistance);
 		int angle = (int)(nbTurn * 360);
 		int speed = (angle / time);
-		while (speed > DEFAULT_SPEED) {
+		while (speed > LINEAR_SPEED) {
 			time++;
 			speed = (angle / time);
 		}
@@ -184,7 +184,7 @@ public abstract class AbstractRobot implements IRobot {
 		int time = 1;
 		int internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));
 		int externalSpeed = (int)(((radiusTurn + widthTrack) * angle) / ((wheelDiameter/2) * time));
-		while (externalSpeed > DEFAULT_SPEED || internalSpeed > DEFAULT_SPEED) {
+		while (externalSpeed > LINEAR_SPEED || internalSpeed > LINEAR_SPEED) {
 			time++;
 			internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));
 			externalSpeed = (int)(((radiusTurn + widthTrack) * angle) / ((wheelDiameter/2) * time));
@@ -198,7 +198,7 @@ public abstract class AbstractRobot implements IRobot {
 		int internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));
 		int externalSpeed = (int)(((radiusTurn + widthTrack) * angle) / ((wheelDiameter/2) * time));
 		this.leftMotor.synchronizeWith(new BaseRegulatedMotor[] {this.rightMotor});
-		while (externalSpeed > DEFAULT_SPEED || internalSpeed > DEFAULT_SPEED) {
+		while (externalSpeed > LINEAR_SPEED || internalSpeed > LINEAR_SPEED) {
 			time++;
 			internalSpeed = (int)((radiusTurn * angle) / ((wheelDiameter/2) * time));
 			externalSpeed = (int)(((radiusTurn + widthTrack) * angle) / ((wheelDiameter/2) * time));

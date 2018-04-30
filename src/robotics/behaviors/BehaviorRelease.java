@@ -14,7 +14,7 @@ public class BehaviorRelease extends SmartBehavior {
 
 	@Override
 	public boolean takeControl() {
-		return this.robot.colorSensor.getColorID() == Color.RED &&
+		return this.robot.colorAdapter.getColorID() == 13 &&
 				this.robot.isObjectGrabbed() == true;				
 	}
 
@@ -23,11 +23,13 @@ public class BehaviorRelease extends SmartBehavior {
 		super.action();
 		int angle = 3 * 360;
 		this.robot.clamp.rotate(angle, false);
-		this.robot.pilot.travel(-20);
+		this.robot.pilot.travel(-10);
 		this.robot.pilot.rotate(180);
 		this.robot.setClampState(true);
 		this.robot.setObjectGrabbed(false);
+		this.robot.setObjectFound(false);
 		this.robot.initClamp();
+		this.robot.navigator.clearPath();
 		this.suppress();
 	}
 }

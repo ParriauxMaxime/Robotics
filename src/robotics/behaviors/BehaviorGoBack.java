@@ -6,6 +6,8 @@ import lejos.robotics.mapping.LineMap;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Navigator;
 import lejos.robotics.navigation.Pose;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
@@ -16,28 +18,31 @@ public final class BehaviorGoBack extends SmartBehavior {
 	float initHeading; 
 	int distance;
 	Pose pose;
+	Path p = null;
 	
 	public BehaviorGoBack(AbstractBehaviorRobot robot) {
 		super(robot);
 		this.pose = this.robot.navigator.getPoseProvider().getPose();
-		this.zone = new Point(pose.getX(), pose.getY());
 		this.initHeading = pose.getHeading();
 	}
 
 	@Override
 	public final boolean takeControl() {
-		return this.robot.isObjectGrabbed() && this.zone.distance(pose.getX(), pose.getY()) > 2;
+		return this.robot.isObjectGrabbed();
 	}
 
 	@Override
 	public final void action() {
 		super.action();
-		this.robot.navigator.goTo(this.zone.x, this.zone.y, 360 - this.initHeading);
+		p = this.robot.navigator.getPath();
+		this.robot.navigator.clearPath();
+		this.robot.navigator.goTo(new Waypoint(this.robot.navigator.getPoseProvider().getPose().getX(), 0));
+		this.robot.navigator.goTo(this.robot.dumpPoint);
+		while (this.robot.navigator.isMoving()) {
+			if (this.suppressed)
+				return;
+			Thread.yield();
+		}
 		this.suppress();
-	}
-	
-	@Override 
-	public final void suppress() {
-		this.robot.navigator.stop();
 	}
 }

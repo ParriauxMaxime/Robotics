@@ -3,6 +3,7 @@ package robotics;
 import lejos.hardware.motor.BaseRegulatedMotor;
 import lejos.hardware.port.Port;
 import lejos.robotics.chassis.Wheel;
+import lejos.robotics.navigation.Waypoint;
 import lejos.robotics.subsumption.*;
 
 public class AbstractBehaviorRobot extends AbstractRobot {
@@ -11,6 +12,7 @@ public class AbstractBehaviorRobot extends AbstractRobot {
 	protected boolean objectFound = false;
 	protected boolean objectGrabbed = false;
 	protected String currentBehavior = "";
+	public Waypoint dumpPoint;
 	
 	public String getCurrentBehavior() {
 		return currentBehavior;

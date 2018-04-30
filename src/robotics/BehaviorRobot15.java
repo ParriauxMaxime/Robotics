@@ -8,6 +8,7 @@ import lejos.robotics.subsumption.Behavior;
 import robotics.behaviors.*;
 import lejos.robotics.geometry.*;
 import lejos.robotics.mapping.*;
+import lejos.robotics.navigation.Waypoint;
 import lejos.hardware.port.*;
 
 public class BehaviorRobot15 extends AbstractBehaviorRobot {
@@ -16,9 +17,7 @@ public class BehaviorRobot15 extends AbstractBehaviorRobot {
 	static  final BaseRegulatedMotor clamp = Motor.C;
 	static final Port irPort = SensorPort.S1;
 	static final Port colorPort = SensorPort.S2;
-	
 	public LineMap map = new LineMap(new Line[] {}, new Rectangle(0, 0, 1000, 1000));
-	public Point dumpPoint = new Point(0, 0);
 	boolean clampOpen = false;
 	
 	public void debugIR() throws InterruptedException {
@@ -27,7 +26,7 @@ public class BehaviorRobot15 extends AbstractBehaviorRobot {
 			LCD.drawInt(this.irAdapter.getObjectDistance(), 4, 4);
 			Thread.sleep(100);
 		}
-	}
+	}	
 	
 	public BehaviorRobot15() throws Exception {
 		super(new BaseRegulatedMotor[] {
@@ -35,18 +34,19 @@ public class BehaviorRobot15 extends AbstractBehaviorRobot {
 				rightMotor,
 		}, irPort, colorPort, clamp);
 		this.setBehaviorList(this.getBehaviorList());
+		this.dumpPoint = new Waypoint(-9, 0, 180);
 		this.arbitrator = new Arbitrator((Behavior [])(this.getBehaviorList()));
 	}
 
 	
 	protected SmartBehavior[] getBehaviorList() {
 		return new SmartBehavior[] { 
-				new BehaviorGoBack(this),
-				new BehaviorRelease(this),
 				new BehaviorSearch(this),
 				new BehaviorGoTake(this),
 				new BehaviorGrab(this),
+				new BehaviorGoBack(this),
 				new BehaviorBlackZone(this),
+				new BehaviorRelease(this),
 		};
 	}
 

@@ -4,8 +4,9 @@ import lejos.robotics.subsumption.Behavior;
 import robotics.AbstractBehaviorRobot;
 
 abstract public  class SmartBehavior implements Behavior {
-	AbstractBehaviorRobot robot;
-	boolean suppressed = false;
+	protected AbstractBehaviorRobot robot;
+	protected boolean suppressed = false;
+	static final  int WEIRD_CONSTANT = 1, MIN_DISTANCE = 6, MAX_DISTANCE = 45;
 	
 	SmartBehavior(AbstractBehaviorRobot robot) {
 		this.robot = robot;
@@ -17,12 +18,14 @@ abstract public  class SmartBehavior implements Behavior {
 	@Override
 	public void action() {
 		this.robot.setCurrentBehavior(this.getClass().getName().toString());
-		this.suppressed = true;
+		this.suppressed = false;
 	}
 	
 	@Override
 	public void suppress() {
-		this.robot.setCurrentBehavior("");
-		this.suppressed = false;
+		this.suppressed = true;
+		this.robot.pilot.stop();
+		this.robot.navigator.stop();
+		this.robot.setCurrentBehavior(this.getClass().getName().toString() + "-suppressed");
 	}
 }

@@ -6,6 +6,9 @@ import lejos.hardware.*;
 import lejos.hardware.lcd.LCD;
 import lejos.hardware.motor.*;
 import lejos.hardware.port.MotorPort;
+import lejos.robotics.geometry.Point;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 
 public class RemoteCarServer extends Thread {
 
@@ -20,9 +23,9 @@ public class RemoteCarServer extends Thread {
 	private static DataOutputStream dOut;
 	private Thread threadArbitrator;
 
-	public RemoteCarServer(Socket client) {
+	public RemoteCarServer(Socket client, AbstractBehaviorRobot r) {
 		try {
-			robot = new BehaviorRobot15();
+			robot = r;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -30,11 +33,11 @@ public class RemoteCarServer extends Thread {
 		Button.ESCAPE.addKeyListener(new EscapeListener());
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		server = new ServerSocket(port);
 		while (looping) {
 			System.out.println("Awaiting client..");
-			new RemoteCarServer(server.accept()).start();
+			new RemoteCarServer(server.accept(), new BehaviorRobot15()).start();
 		}
 	}
 
@@ -57,6 +60,18 @@ public class RemoteCarServer extends Thread {
 		case RemoteCarClient.NOTIFY:
 			sendData();
 			break;
+		case RemoteCarClient.DEBUG: 
+			Path zone = new Path();
+			Point p = robot.navigator.getPoseProvider().getPose().getLocation();
+			zone.add(new Waypoint(p.getX(), p.getY()));
+			zone.add(new Waypoint (20, -20));
+			 zone.add(new Waypoint (60, -20));
+			 zone.add(new Waypoint (60, 20));
+			 zone.add(new Waypoint (20, 20));
+			 zone.add(new Waypoint (0, 0));
+			 robot.navigator.setPath(zone);
+			 robot.navigator.followPath();
+			break;
 		case RemoteCarClient.START:
 			threadArbitrator = new Thread() {
 				@Override
@@ -78,7 +93,7 @@ public class RemoteCarServer extends Thread {
 		try {
 			dOut.writeInt(0);
 			dOut.writeInt(robot.irAdapter.getObjectDistance());
-			dOut.writeInt(robot.colorSensor.getColorID());
+			dOut.writeInt(robot.colorAdapter.getColorID());
 			dOut.writeUTF(robot.getCurrentBehavior());
 			} catch (IOException e) {
 			e.printStackTrace();

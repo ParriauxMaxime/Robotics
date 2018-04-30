@@ -3,48 +3,47 @@ package robotics.behaviors;
 import lejos.hardware.Sound;
 import lejos.robotics.Color;
 import lejos.robotics.geometry.*;
+import lejos.robotics.navigation.Waypoint;
+import lejos.robotics.pathfinding.Path;
 import robotics.AbstractBehaviorRobot;
 
-public class BehaviorSearch extends SmartBehavior  {
-	public Point zone;
-	static final int MAX_DISTANCE = 45;
+public class BehaviorSearch extends SmartBehavior {
+	public Path zone = new Path();
+	public int currentZone = -1;
 
 	public BehaviorSearch(AbstractBehaviorRobot robot) {
 		super(robot);
+		this.prepareZone();
+		this.robot.navigator.setPath(this.zone);
+		this.robot.navigator.singleStep(true);
 	}
 
+	void prepareZone() {
+		this.zone.add(new Waypoint (20, -15));
+		this.zone.add(new Waypoint (50, -15));
+		this.zone.add(new Waypoint (50, 15));
+		this.zone.add(new Waypoint (20, 15));
+		this.zone.add(new Waypoint (0, 0));
+	}
 	@Override
 	public final boolean takeControl() {
-		return this.robot.isObjectGrabbed() == false && this.robot.irAdapter.getObjectDistance() > MAX_DISTANCE  && !this.robot.pilot.isMoving(); 
+		return true;
 	}
-	
-	 void randomMove() {
-		this.robot.pilot.rotate(Math.round(Math.random() * 3) * (Math.round(Math.random()) == 1 ? 1 : -1) * 90, true);
-		this.robot.pilot.travel(50, true);
-	}
-	 
-	 @Override
+		
+	@Override
 	public final void action() {
-		 super.action();
-		this.robot.setObjectFound(false);
-		int angle = 6;
-		int step = 360 / angle;
-		for (int i = 0; i < step; i++) {
-			this.robot.pilot.rotate(angle);
-			if (this.robot.irAdapter.getObjectDistance() <= MAX_DISTANCE) {
-				Sound.playTone(400, 50);
-				this.robot.setObjectFound(true);
-				break;
-			}
+		super.action();
+		if (this.robot.navigator.getPath().isEmpty()) {
+			this.prepareZone();
+			System.out.println("RECREATE PATH");
+			this.robot.navigator.setPath(this.zone);
+			this.robot.navigator.singleStep(true);
 		}
-		if (!this.robot.getObjectFound())
-			this.randomMove();
-		this.suppress();
+		// RANDOM MOVE
+		this.robot.setCurrentBehavior(this.getClass().getName()+ "-Step-" + this.robot.navigator.getWaypoint().getX() + "-" + this.robot.navigator.getWaypoint().getY() );
+		this.robot.navigator.followPath();
+		while (this.robot.navigator.isMoving() && !this.suppressed);
+		this.robot.pilot.rotate(360, true);
+		while (this.robot.pilot.isMoving() && !this.suppressed);
 	}
-	 
-	 @Override
-	 public final void suppress() {
-		 super.suppress();
-		 this.robot.pilot.stop();
-	 }
 }
